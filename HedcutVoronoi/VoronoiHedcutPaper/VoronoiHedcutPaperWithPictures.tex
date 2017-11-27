@@ -1,0 +1,1010 @@
+% This file was converted to LaTeX by Writer2LaTeX ver. 1.4
+% see http://writer2latex.sourceforge.net for more info
+\documentclass[letterpaper]{article}
+\usepackage[latin1]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb,amsfonts,textcomp}
+\usepackage{color}
+\usepackage{array}
+\usepackage{supertabular}
+\usepackage{hhline}
+\usepackage{hyperref}
+\hypersetup{pdftex, colorlinks=true, linkcolor=blue, citecolor=blue, filecolor=blue, urlcolor=blue, pdftitle=, pdfauthor=Jenifer Cochran, pdfsubject=, pdfkeywords=}
+\usepackage[pdftex]{graphicx}
+% Outline numbering
+\setcounter{secnumdepth}{0}
+\makeatletter
+\newcommand\arraybslash{\let\\\@arraycr}
+\makeatother
+% List styles
+\newcommand\liststyleWWNumi{%
+\renewcommand\theenumi{\arabic{enumi}}
+\renewcommand\theenumii{\alph{enumii}}
+\renewcommand\theenumiii{\roman{enumiii}}
+\renewcommand\theenumiv{\arabic{enumiv}}
+\renewcommand\labelenumi{\theenumi.}
+\renewcommand\labelenumii{\theenumii.}
+\renewcommand\labelenumiii{\theenumiii.}
+\renewcommand\labelenumiv{\theenumiv.}
+}
+\newcommand\liststyleWWNumii{%
+\renewcommand\theenumi{\arabic{enumi}}
+\renewcommand\theenumii{\alph{enumii}}
+\renewcommand\theenumiii{\roman{enumiii}}
+\renewcommand\theenumiv{\arabic{enumiv}}
+\renewcommand\labelenumi{\theenumi.}
+\renewcommand\labelenumii{\theenumii.}
+\renewcommand\labelenumiii{\theenumiii.}
+\renewcommand\labelenumiv{\theenumiv.}
+}
+% Page layout (geometry)
+\setlength\voffset{-1in}
+\setlength\hoffset{-1in}
+\setlength\topmargin{1in}
+\setlength\oddsidemargin{1in}
+\setlength\textheight{9.0in}
+\setlength\textwidth{6.5in}
+\setlength\footskip{0.0cm}
+\setlength\headheight{0cm}
+\setlength\headsep{0cm}
+% Footnote rule
+\setlength{\skip\footins}{0.0469in}
+\renewcommand\footnoterule{\vspace*{-0.0071in}\setlength\leftskip{0pt}\setlength\rightskip{0pt plus 1fil}\noindent\textcolor{black}{\rule{0.25\columnwidth}{0.0071in}}\vspace*{0.0398in}}
+% Pages styles
+\makeatletter
+\newcommand\ps@Standard{
+  \renewcommand\@oddhead{}
+  \renewcommand\@evenhead{}
+  \renewcommand\@oddfoot{}
+  \renewcommand\@evenfoot{}
+  \renewcommand\thepage{\arabic{page}}
+}
+\makeatother
+\pagestyle{Standard}
+\setlength\tabcolsep{1mm}
+\renewcommand\arraystretch{1.3}
+\title{}
+\author{Jenifer Cochran}
+\date{2017-11-27}
+\begin{document}
+\clearpage\setcounter{page}{1}\pagestyle{Standard}
+{\raggedleft
+Jenifer Cochran
+\par}
+
+{\raggedleft
+CS 633
+\par}
+
+{\raggedleft
+Homework 2
+\par}
+
+
+\bigskip
+
+{\centering
+Voronoi and Hedcut
+\par}
+
+
+\bigskip
+
+\section{Understanding the implementation}
+
+\bigskip
+
+\ \ \ \ \ For many years newspapers and artists used the stippling technique to construct drawings. \ The stippling
+technique use to be done by hand which is placing small dots of ink onto a paper where darker areas have a higher
+density of dots and whiter areas have less or no dots. An important quality of stippling is that the dots are well
+spaced. \ There are two algorithms that can do this technique programmatically with little user input which are Lloyd's
+method (Voronoi) and weighted Voronoi diagram (Hedcut). \ 
+
+\ \ \ \ Lloyd's method (Voronoi) has the following algorithm steps:
+
+\liststyleWWNumi
+\begin{enumerate}
+\item Generate n random points inside the interested region
+\item Generate the Voronoi diagram of the n points
+\item Find the centroid (center of mass) of each Voronoi cell by sampling
+\item Use the n centroids as the resulting points
+\item If none of the centroids moved (or reached max iterations) then stop, otherwise go to step 2
+\end{enumerate}
+\ \ \ \ \ The most important part of the Lloyd's method is the generation and the centroid finding. \ Notice in the
+following image the black dot represents the Voronoi calculated site, and the red dot is the centroid of the Voronoi
+cell.
+
+
+\includegraphics[width=2.4362in,height=2.328in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img001.jpg}
+
+
+\ \ \ \ \ The centroid is calculated by both the distance and the density of the Voronoi cell. \ The density is
+calculated by chopping the image up into tiles and samples the density from a point in each tile. \ Then it uses the
+average density of all the tiles within each cell. \ Until there is no difference between the black dot and the red dot
+(the site and the centroid), the Lloyd's method continues the relaxation portion of the algorithm until the difference
+is negligible or we reached the maximum number of iterations. Voronoi weighted algorithm (Hedcut) is very similar but
+with one significant difference.
+
+\ \ \ Voronoi weighted algorithm is the following steps:
+
+\liststyleWWNumii
+\begin{enumerate}
+\item Generate n random points inside the interested region 
+\item Generate the Voronoi diagram for n points
+\item Compute the Centroid using all the pixels within a cell
+\item Use the n weighted centroids as the resulting points
+\item If none of the centroids moved (or max iterations reached) stop, otherwise go to step 2
+\end{enumerate}
+\ \ \ \ The computation of the centroid is what sets these two algorithms apart. \ Instead of using sampling to
+calculate the density of the Voronoi cell, Hedcut computes the exact density by integrating over all pixels in the
+cell. \ This will affect the quality of region clustering and be able to compute the edges more accurately than
+sampling would. \ This also makes Hedcut run significantly slower than Voronoi since it is using every pixel in its
+density calculation.
+
+\ \ \ \ Another way these two algorithms are set apart are the stipple placements. \ In Voronoi the stipple placement is
+always at the highest intensity in the cell whereas Hedcut places the stipple at the site location of the cell. \ This
+difference makes edges more prominent in Voronoi than in Hedcut. \ \ 
+
+\section{Compare the outputs}
+
+\bigskip
+
+When running the same program on the same image multiple times using Voronoi, the image is the same. \ Normally this
+isn't the case but since in the code it doesn't seed the random object, the randomization is always the same. \ Thus,
+leading to the same output results.
+
+Here are two images of running Voronoi two separate times with 8000 stipples:
+
+
+\includegraphics[width=0.9138in,height=1.4693in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img002.png}
+
+\includegraphics[width=0.8866in,height=1.4264in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img003.png}
+
+
+\ \ \ \ When running the same program on the same image multiple times using Hedcut, the image is different due to the
+randomization of sample points. \ Here is an example using the same image two separate times with 8000 stipples:
+
+
+\includegraphics[width=0.8909in,height=1.4335in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img004.png}
+
+\includegraphics[width=0.9256in,height=1.489in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img005.png}
+
+
+\ \ \ It is hard to see when the image is small but the stipples are in different locations. If you look at the right
+button of Klayman, the image on the right has a darker left side portion than the left image's right-most button. There
+are other variations throughout the image, all due to the randomization of sample points.
+
+\ \ When you vary the number of disks on the output images for both Voronoi and Hedcut the distribution differs in the
+final image. \ The following images are of Hedcut with stipples of 4,000; 8,000; 16,000; 32,000; 64,000; 128,000; and
+256,000.
+
+
+\bigskip
+
+
+\includegraphics[width=1.3898in,height=1.8528in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img006.png}
+
+\includegraphics[width=1.3925in,height=1.8563in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img007.png}
+
+\includegraphics[width=1.3909in,height=1.8547in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img008.png}
+
+\includegraphics[width=1.3909in,height=1.8547in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img009.png}
+
+\includegraphics[width=1.4091in,height=1.8791in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img010.png}
+
+\includegraphics[width=1.4091in,height=1.8783in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img011.png}
+
+\includegraphics[width=1.4138in,height=1.8854in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img012.png}
+ \ 
+
+\ As the stipples increase for Hedcut you can see more detail up to 64,000 stipples and when we hit 128,000 stipples we
+end up seeing the darkest areas of the photo to have less stipples. \ This is because we are having collisions in the
+darker areas and when sites cluster too closely together, it causes cells to have zero coverage, and therefore the cell
+is removed. \ This is due to the resolution. \ If we had a higher resolution photo we wouldn't run into this problem so
+quickly, but eventually the same thing will occur the more stipples we add. 
+
+
+\bigskip
+
+\ \ As for Voronoi the distribution is different with the same number of stipples (4,000; 8,000; 16,000; 32,000; 64,000;
+128,000; 256,000):
+
+
+\includegraphics[width=1.2898in,height=1.7193in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img013.png}
+ \ \ \ \ \ \ 
+\includegraphics[width=1.2925in,height=1.7228in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img014.png}
+ \ \ \ \ \ 
+\includegraphics[width=1.2925in,height=1.7228in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img015.png}
+ \ \ \ \ \ 
+\includegraphics[width=1.298in,height=1.7299in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img016.png}
+
+
+
+\includegraphics[width=1.2925in,height=1.7228in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img017.png}
+ \ \ \ \ \ \ 
+\includegraphics[width=1.298in,height=1.7299in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img018.png}
+ \ \ \ \ \ 
+\includegraphics[width=1.3193in,height=1.7602in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img019.png}
+
+
+\ \ \ \ \ \ For Voronoi, you do not have the problem where the cell coverage is zero therefore removed. \ This algorithm
+does not remove overlapping stipples, therefore you see a different distribution. 
+
+\ \ \ When you vary the disks in the output images there is a significant performance difference between Voronoi and
+Hedcut. \ Voronoi is much faster than Hedcut as the number of disks increase. ญญญญญญAs the pixels increase Hedcut is
+much slower since it uses every pixel to calculate the density of a Voronoi cell. \ Though there is a point where if
+there are too few stipples then the centroids move a around a great distance which can cause some more iterations. \ In
+general, as the number of disks increase, Voronoi is significantly faster than Hedcut.
+
+\ \ \ Another variance that impacts the algorithms is the number of pixels in the image. The number of pixels effects
+Hedcut greatly. \ As you noticed with the ``Fairyeyes.png'' photo, if there are not enough pixels, you will end up with
+collision of sites where cells will be removed (since the cell will have zero coverage). \ As for Voronoi, the number
+of pixels also effects its performance but will not experience the remove of cells problem. \ 
+
+\ \ Brightness is also another factor that can alter the outputs. \ The brightness will affect the way Voronoi places
+the site, since the stipples are placed at the highest intensity pixel within the cell. \ Hedcut uses the center of the
+site therefore will not be effected as much as far as stipple placement. \ \ 
+
+\ \ \ \ I ran the algorithms with various types of images, natural versus urban landscapes as well as photos versus
+paintings. \ 
+
+Here is Voronoi with 40,000 stipples for Urban:
+
+
+\includegraphics[width=2.7484in,height=1.5457in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img020.png}
+
+\includegraphics[width=2.7398in,height=1.5409in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img021.png}
+
+
+Here is Hedcut with 40,000 stipples for Urban:
+
+
+\includegraphics[width=2.7484in,height=1.5457in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img020.png}
+
+\includegraphics[width=2.7835in,height=1.5646in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img022.png}
+
+
+
+\bigskip
+
+\ \ In this example I think that Voronoi does better for the Urban landscape. \ The edges are much sharper than the one
+in Hedcut.
+
+Here is Voronoi with 40,000 stipples for Landscape:
+
+
+\includegraphics[width=1.9598in,height=0.6134in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img023.jpg}
+
+\includegraphics[width=1.9335in,height=0.6047in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img024.png}
+
+
+Here is Hedcut with 40,000 stipples for Landscape:
+
+
+\includegraphics[width=1.9598in,height=0.6134in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img023.jpg}
+
+\includegraphics[width=1.9134in,height=0.5984in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img025.png}
+
+
+
+\bigskip
+
+\ \ \ \ \ In the landscape, I think that Hedcut and Voronoi are better matched. \ Though I still think that Voronoi
+produces a better landscape, Hedcut did a decent job of capturing the overall photo.
+
+Here is Voronoi with 40,000 stipples for Painting:
+
+
+\includegraphics[width=0.8in,height=1.1953in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img026.png}
+
+\includegraphics[width=0.8071in,height=1.2043in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img027.png}
+
+
+Here is Hedcut with 40,000 stipples for Painting:
+
+
+\includegraphics[width=0.8in,height=1.1953in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img026.png}
+
+\includegraphics[width=0.8016in,height=1.1957in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img028.png}
+
+
+
+\bigskip
+
+\ \ \ \ This I found very surprising. \ Hedcut did a much better job on this particular painting than Voronoi did. \ I
+believe that Hedcut performed better due to the low resolution on this image. \ Though you can tell that Voronoi does a
+much better job on the edges of the photo than Hedcut. \ If you look at Mona Lisa's hands you can tell that in Hedcut
+it is much more blurry than the one in Voronoi.
+
+Here is Voronoi with 40,000 stipples for Photo:
+
+
+\includegraphics[width=2.5189in,height=1.6752in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img029.jpg}
+
+\includegraphics[width=2.528in,height=1.6827in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img030.png}
+
+
+Here is Hedcut with 40,000 stipples for Photo:
+
+
+\includegraphics[width=2.5189in,height=1.6752in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img029.jpg}
+
+\includegraphics[width=2.5154in,height=1.6744in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img031.png}
+
+
+\ \ \ In this photo, Voronoi does a better job of capturing the baby's face edges than Hedcut does. \ Though I noticed
+that both algorithms struggled with the brightness of this photo.
+
+\ \ \ In general, the stippling outputs are very similar to the ones created by artists of the Wall Street Journal,
+though I did notice that the artists put heavier accents on the lines of the face than our generated output does. I
+wasn't able to examine the differences closely since I would have had to buy a subscription to the Wall Street Journal
+in order to read the article. \ I only had access to the video that was linked. \ 
+
+
+\bigskip
+
+\section[Improve Hedcuter code]{Improve Hedcuter code}
+
+\bigskip
+
+\ \ \ \ I chose to improve Hedcuter code in two ways. \ One was to improve how the color is represented throughout the
+image and the second was to make this computation multi-threaded. \ 
+
+\ \ \ \ \ The way I decided to improve the color was to take the original image and split it up into its 3 color
+channels; red, green, and blue. By separating the color channels it will make sure that we do not run into the
+pigeon-hole property. \ \ That is that we have too many stipples congested in one area which will cause Hedcut to
+remove the site altogether (since the Voronoi cell will have zero coverage area). \ This will allow us to represent the
+image better since we will not be removing as many sites if we were to do them all at once. 
+
+\ \ \ \ I augmented the code that you can pass the command argument \textbf{{}-channel\_image} which will perform this
+enhancement. \ The following is the code snippet that I originally wrote my code (without it being multi-threaded):
+
+\begin{flushleft}
+\tablefirsthead{}
+\tablehead{}
+\tabletail{}
+\tablelasttail{}
+\begin{supertabular}{|m{6.41436in}|}
+\hline
+if(channel\_image)
+
+\{
+
+\ \ \ \ \ cv::Mat bgr[3];
+
+\ \ \ \ \ cv::split(input\_image, bgr);
+
+\ \ \ \ //sample n points
+
+\ \ \ \ sample\_initial\_points(bgr[2], n, pts);
+
+\ \ \ \ cvt.compute\_weighted\_cvt(bgr[2], pts);
+
+\ \ \ \ create\_disks(input\_image, cvt);
+
+\ \ \ std::cout {\textless}{\textless} {\textquotedbl}Finished red channel{\textquotedbl} {\textless}{\textless}
+{\textquotedbl}{\textbackslash}n{\textquotedbl};
+
+~
+
+~
+
+\ \ \ //sample n points
+
+\ \ \ \ sample\_initial\_points(bgr[0], n, pts);
+
+\ \ \ \ cvt.compute\_weighted\_cvt(bgr[0], pts);
+
+\ \ \ \ create\_disks(input\_image, cvt);
+
+\ \ \ \ std::cout {\textless}{\textless} {\textquotedbl}Finished blue channel{\textquotedbl} {\textless}{\textless}
+{\textquotedbl}{\textbackslash}n{\textquotedbl};
+
+~
+
+\ \ \ //sample n points
+
+\ \ \ sample\_initial\_points(bgr[1], n, pts);
+
+\ \ \ cvt.compute\_weighted\_cvt(bgr[1], pts);
+
+\ \ \ create\_disks(input\_image, cvt);
+
+\ \ \ std::cout {\textless}{\textless} {\textquotedbl}Finished green channel{\textquotedbl} {\textless}{\textless}
+{\textquotedbl}{\textbackslash}n{\textquotedbl};
+
+\}
+
+~
+\\\hline
+\end{supertabular}
+\end{flushleft}
+
+\bigskip
+
+\ \ \ \ \ I also had to alter the code in Hedcut::create\_disks because originally it would clear out the disks every
+time that method was called. \ I had to make sure that the disks were not cleared since I am calling this method on
+three separate occasions. \ This uses OpenCV to split the image to each of the Red, Blue, Green channels then calls the
+compute\_weighted\_cvt with that matrix. \ It is also important to note that if someone passes in an argument of 8,000
+stipples and uses the channel\_image flag that there will be approximately 24,000 stipples in the final image. \ This
+is because each channel of the image is contributing approximately 8,000 stipples to the final drawing. \ 
+
+Below is the original image that I will run Hedcut and then the improved Hedcut on:
+
+
+\includegraphics[width=2.6937in,height=2.1602in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img032.png}
+
+
+\ Below represents an example of where we run into the problem of sites being removed in the unmodified Hedcut (stipples
+150,000) :
+
+\ 
+\includegraphics[width=2.8854in,height=2.3146in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img033.png}
+
+
+
+\bigskip
+
+Below represents the improved Hedcut using the \textbf{channel\_image} flag with 50,000 stipples (which is tripled to
+approximately 150,000 stipples):
+
+
+\includegraphics[width=3.1445in,height=2.522in]{VoronoiHedcutPaperWithPictures-img/VoronoiHedcutPaperWithPictures-img034.png}
+
+
+
+\bigskip
+
+
+\bigskip
+
+\ \ As you can see, the grass overall is better represented in the \textbf{channel\_image} version than the unimproved
+Hedcut version. \ This is because there are less collisions and that less cells are being removed due to the limit of
+the resolution of the original image. \ By separating the channels out, you can better represent the image without
+having to change the resolution of the image. \ If I had more time I would have improved how the stipples that are
+drawn on top of each other to have a bit of transparency. \ Since if two stipples of two different colors channels are
+exactly on top of each other, one is blocked by the other. \ Instead I chose to improve this by making it
+multi-threaded to speed up the process. \ This did run significantly slower than Hedcut. \ 
+
+
+\bigskip
+
+\ \ \ \ I hadn't realized how difficult making the program multi-threaded could be since I thought it would be straight
+forward. \ My plan was to make each channel calculate the sample points, calculate weighted cvt, and create the disks
+on their own thread. \ The first problem I ran into was trying to include {\textless}pthread{\textgreater} as a
+dependency. \ I then learned that to add this dependency I had to alter the CMakeList.txt to include the following:
+
+\begin{flushleft}
+\tablefirsthead{}
+\tablehead{}
+\tabletail{}
+\tablelasttail{}
+\begin{supertabular}{|m{6.41436in}|}
+\hline
+\#\#\#\#\#\#\#\#\#\# set compiler flags \#\#\#\#\#\#\#\#\#\#
+
+if(NOT WIN32)
+
+\ \ set(CMAKE\_CXX\_FLAGS {\textquotedbl}\$\{CMAKE\_CXX\_FLAGS\} -std=c++11 -pthread{\textquotedbl})
+
+\ \ set(CMAKE\_CXX\_FLAGS {\textquotedbl}\$\{CMAKE\_CXX\_FLAGS\} -Wno-deprecated-declarations{\textquotedbl})
+
+endif()
+
+~
+
+if(WIN32)
+
+\ \ set(CMAKE\_CXX\_FLAGS {\textquotedbl}\$\{CMAKE\_CXX\_FLAGS\} -std=c++11 -pthread /D
+\_CRT\_SECURE\_NO\_WARNINGS{\textquotedbl})
+
+endif()
+
+~
+\\\hline
+\end{supertabular}
+\end{flushleft}
+
+\bigskip
+
+
+\bigskip
+
+
+\bigskip
+
+\ \ \ \ \ Finally I no longer had a compiler error when I created an std::thread object. \ I ran into another issue
+which was when I was creating the thread it said that the method needed to be static. \ I combed through stack overflow
+to figure out how to call a non-static method when creating a thread(since there were many instance variables that
+these methods had to access). \ \ I had attempted the following:
+
+
+\bigskip
+
+\begin{flushleft}
+\tablefirsthead{}
+\tablehead{}
+\tabletail{}
+\tablelasttail{}
+\begin{supertabular}{|m{6.41436in}|}
+\hline
+for(int i = 0; i {\textless} 3; ++i)
+
+\{
+
+\ \ //where compute\_channel\_image called the various methods
+
+\ \ //sample\_inital\_points, compute\_weighted\_cvt, and create\_disks
+
+\ \ //using the input image given, the bgr[i] matrix that represents a
+
+\ \ //certain channel of the image and n is the number of stippler points
+
+std::thread(\&Hedcut::compute\_channel\_image, this, bgr[i], n, input\_image);
+
+~
+
+\}\\\hline
+\end{supertabular}
+\end{flushleft}
+
+\bigskip
+
+\ \ \ I learned that you need to pass in \textit{this} as a parameter to allow the method to be a non-static method when
+creating the thread. \ But I then ran into an entirely different problem which was that it wouldn't let me pass in
+multiple parameters to my \textbf{compute\_channel\_image} method defined in this class when creating a thread. \ This
+led me to create a struct in the header file defined as follows:
+
+\begin{flushleft}
+\tablefirsthead{}
+\tablehead{}
+\tabletail{}
+\tablelasttail{}
+\begin{supertabular}{|m{6.41436in}|}
+\hline
+struct ChannelParams
+
+\{
+
+\ \ cv::Mat input\_image; \ //the original input image
+
+\ \ int n; \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ //number of stipple points
+
+\ \ cv::Mat channel\_image;//the matrix of the image channel
+
+\ \ int color\_id; //unnecessary, was used for debuging
+
+~
+
+\};\\\hline
+\end{supertabular}
+\end{flushleft}
+
+\bigskip
+
+\ \ \ By creating this struct, it allowed me to pass a single argument that contained all the values I needed to run the
+thread:
+
+\begin{flushleft}
+\tablefirsthead{}
+\tablehead{}
+\tabletail{}
+\tablelasttail{}
+\begin{supertabular}{|m{6.41436in}|}
+\hline
+~
+
+for(int i = 0; i {\textless} 3; ++i)
+
+\{
+
+\ \ //where compute\_channel\_image called the various methods
+
+\ \ //sample\_inital\_points, compute\_weighted\_cvt, and create\_disks
+
+\ \ //using the input image given, the bgr[i] matrix that represents a
+
+\ \ //certain channel of the image and n is the number of stippler points
+
+\ \ ChannelParams params;
+
+\ \ params.n = n;
+
+\ \ params.input\_image = input\_image;
+
+\ \ params.channel\_image = bgr[i];
+
+\ \ params.color\_id = i;
+
+std::thread(\&Hedcut::compute\_channel\_image, this,params);
+
+~
+
+\}
+
+~
+
+~
+\\\hline
+\end{supertabular}
+\end{flushleft}
+
+\bigskip
+
+
+\bigskip
+
+\ \ \ Finally, my code compiles and I thought I was home free! Unfortunately, I ran into race conditions because I had
+not made my code wait for the threads to finish. \ So, I had to add a vector containing my threads so that I can join
+them and make them wait before I allowed my code to proceed:
+
+\begin{flushleft}
+\tablefirsthead{}
+\tablehead{}
+\tabletail{}
+\tablelasttail{}
+\begin{supertabular}{|m{6.41436in}|}
+\hline
+std::vector{\textless}std::thread{\textgreater} threads;
+
+for(int i = 0; i {\textless} 3; ++i)
+
+\{
+
+\ \ //where compute\_channel\_image called the various methods
+
+\ \ //sample\_inital\_points, compute\_weighted\_cvt, and create\_disks
+
+\ \ //using the input image given, the bgr[i] matrix that represents a
+
+\ \ //certain channel of the image and n is the number of stippler points
+
+\ \ ChannelParams params;
+
+\ \ params.n = n;
+
+\ \ params.input\_image = input\_image;
+
+\ \ params.channel\_image = bgr[i];
+
+\ \ params.color\_id = i;
+
+threads.push\_back(std::thread(\&Hedcut::compute\_channel\_image, this,params));
+
+~
+
+\}
+
+~
+
+for(auto\& thread : threads)
+
+\{
+
+\ \ \ \ thread.join(); //this ensures the code doesn't proceed before we are \ \ \ \ \ \ \ \ finished with all the
+channels
+
+\}
+
+~
+\\\hline
+\end{supertabular}
+\end{flushleft}
+
+\bigskip
+
+\ \ \ Then I ran into SIGSEGV (address boundary error). \ I quickly realized that I needed to add locks to my code which
+meant I needed to include {\textless}mutex{\textgreater}. \ The variable that I wasn't locking and unlocking properly
+was the disks variable. \ Since multiple threads could be adding to the disks property simultaneously, this can cause
+memory issues. \ I added the following to the create\_disks method:
+
+\begin{flushleft}
+\tablefirsthead{}
+\tablehead{}
+\tabletail{}
+\tablelasttail{}
+\begin{supertabular}{|m{6.41436in}|}
+\hline
+this-{\textgreater} lock.lock();
+
+this-{\textgreater} disks.push\_back(disk);
+
+this-{\textgreater} lock.unlock();
+
+~
+\\\hline
+\end{supertabular}
+\end{flushleft}
+
+\bigskip
+
+\ \ \ \ Viola! The color improvement not only fixes the pigeon-hole property but also can run faster since it is using
+multiple CPU's. \ I thought for sure that this would run faster than normal Hedcut but unfortunately it did not. \ I
+made several attempts to add mutli-threading to wcvt.cpp vor method but without much success. \ I tried to make the
+check neighbors double for loop to be multi-threaded. \ My plan was to empty the open list and spawn a thread for each
+cell that was in that list and calculate the neighbors distance on its own thread. \ I couldn't figure out how to not
+only properly lock the open list (when I needed to add more to it). \ I tried to make the threads that were spawned
+that needed to add to the open list to spawn a yet another thread (if it found another candidate) but ran into more
+confusing and crazy issues. \ I spent about two days trying to make calculating the neighbors faster but to no avail. 
+
+\begin{flushleft}
+\tablefirsthead{}
+\tablehead{}
+\tabletail{}
+\tablelasttail{}
+\begin{supertabular}{|m{6.41436in}|}
+\hline
+//propagate
+
+\ \ while (open.empty() == false)
+
+\ \ \{
+
+\ \ \ \ dist\_lock.lock();
+
+\ \ \ \ std::pop\_heap(open.begin(), open.end(), compareCell);
+
+\ \ \ \ auto cell = open.back();
+
+\ \ \ \ auto\& cpos = cell.second;
+
+\ \ \ \ open.pop\_back();
+
+~
+
+\ \ \ \ //check if the distance from this cell is already updated
+
+\ \ \ \ if (cell.first {\textgreater} dist.at{\textless}float{\textgreater}(cpos.x, cpos.y)) 
+
+\ \ \ \ \{
+
+\ \ \ \ \ \ dist\_lock.unlock();
+
+\ \ \ \ \ \ continue;
+
+\ \ \ \ \}
+
+\ \ \ \ if (visited.at{\textless}uchar{\textgreater}(cpos.x, cpos.y) {\textgreater} 0) 
+
+\ \ \ \ \{
+
+~
+
+\ \ \ \ \ \ dist\_lock.unlock();
+
+\ \ \ \ \ \ continue; 
+
+\ \ \ \ \}//visited
+
+~
+
+\ \ \ \ visited.at{\textless}uchar{\textgreater}(cpos.x, cpos.y) = 1;
+
+~
+
+\ \ \ \ dist\_lock.unlock();
+
+~
+
+\ \ \ \ CheckNeighborsParam param;
+
+\ \ \ \ param.root = \&root;
+
+\ \ \ \ param.resizedImg = resizedImg;
+
+\ \ \ \ param.dist = \&dist;
+
+\ \ \ \ param.res = res;
+
+\ \ \ \ param.open = \&open;
+
+\ \ \ \ param.cpos = cpos;
+
+\ \ \ \ param.dist\_lock = \&dist\_lock;
+
+\ \ \ \ param.other\_lock = \&other\_lock;
+
+\ \ \ \ param.visited = \&visited;
+
+\ \ \ \ threads.push\_back(std::thread(\&CVT::check\_neighbors, this, param));\ \ \ \ 
+
+~
+
+\ \ \}//end while
+
+~
+
+\ \ if(!threads.empty())
+
+\ \ \{
+
+\ \ \ \ for(auto\& mythread : threads)
+
+\ \ \ \ \{
+
+\ \ \ \  \ \ \ mythread.join();
+
+\ \ \ \ \}
+
+\ \ \}
+
+~
+\\\hline
+\end{supertabular}
+\end{flushleft}
+
+\bigskip
+
+The following snippet is the method check\_neighbors:
+
+\begin{flushleft}
+\tablefirsthead{}
+\tablehead{}
+\tabletail{}
+\tablelasttail{}
+\begin{supertabular}{|m{6.41436in}|}
+\hline
+void CVT::check\_neighbors(CheckNeighborsParam param)
+
+\{
+
+\ \ int x = param.cpos.x + param.dx;
+
+\ \ if (x {\textless} 0 {\textbar}{\textbar} x {\textgreater}= param.res.height) return;
+
+\ \ for (int dy = -1; dy {\textless}= 1; dy++) //y is column
+
+\ \ \{
+
+\ \ \ \ if (param.dx == 0 \&\& dy == 0) continue; //itself...
+
+~
+
+\ \ \ \ int y = param.cpos.y + dy;
+
+\ \ \ \ if (y {\textless} 0 {\textbar}{\textbar} y {\textgreater}= param.res.width) continue;
+
+\ \ \ \ \ \ \ \ cv::Point pt\_tmp(x, y);
+
+~
+
+\ \ \ \ \ \ \ \ param.lock-{\textgreater}lock();
+
+~
+
+\ \ \ \ float newd = param.dist-{\textgreater}at{\textless}float{\textgreater}(param.cpos.x, param.cpos.y) +
+color2dist(param.resizedImg, pt\_tmp);
+
+\ \ \ \ float oldd = param.dist-{\textgreater}at{\textless}float{\textgreater}(x, y);
+
+~
+
+\ \ \ \ if (newd {\textless} oldd)
+
+\ \ \ \ \{
+
+~
+
+\ \ \ \ \ \ param.dist-{\textgreater}at{\textless}float{\textgreater}(x, y)=newd;
+
+\ \ \ \ \ \ param.root-{\textgreater}at{\textless}ushort{\textgreater}(x, y) =
+param.root-{\textgreater}at{\textless}ushort{\textgreater}(param.cpos.x, param.cpos.y);
+
+\ \ \ \ \ \ param.open-{\textgreater}push\_back(std::make\_pair(newd, cv::Point(x, y)));
+
+\ \ \ \ \}
+
+\ \ \ \ param.lock-{\textgreater}unlock();
+
+\ \ \}//end for dy
+
+\}\\\hline
+\end{supertabular}
+\end{flushleft}
+
+\bigskip
+
+\ \ \ \ \ \ I kept running into the SIGSEGV (address boundary error), which means I was not locking up a resource
+properly and it was being accessed by two separate threads simultaneously. \ I spent a lot of time trying to figure out
+which property was being mishandled and added locks almost everywhere. \ I was unable to track the problem down. 
+
+\ \ I also attempted to make only a portion of it multi-threaded. \ In the double for loop, I tried to spawn threads for
+each of the dx's to see if that would speed up the process:
+
+\begin{flushleft}
+\tablefirsthead{}
+\tablehead{}
+\tabletail{}
+\tablelasttail{}
+\begin{supertabular}{|m{6.41436in}|}
+\hline
+//propagate
+
+\ \ while (open.empty() == false)
+
+\ \ \{
+
+\ \ \ \ //
+
+\ \ \ \ std::pop\_heap(open.begin(), open.end(), compareCell);
+
+\ \ \ \ auto cell = open.back();
+
+\ \ \ \ auto\& cpos = cell.second;
+
+\ \ \ \ open.pop\_back();
+
+~
+
+\ \ \ \ //check if the distance from this cell is already updated
+
+\ \ \ \ if (cell.first {\textgreater} dist.at{\textless}float{\textgreater}(cpos.x, cpos.y)) continue;
+
+\ \ \ \ if (visited.at{\textless}uchar{\textgreater}(cpos.x, cpos.y) {\textgreater} 0) continue; //visited
+
+\ \ \ \ visited.at{\textless}uchar{\textgreater}(cpos.x, cpos.y) = 1;
+
+~
+
+\ \ \ \ std::mutex lock;
+
+\ \ \ \ //check the neighbors
+
+\ \ \ \ std::vector{\textless}std::thread{\textgreater} threads;
+
+\ \ \ \ for (int dx =-1; dx {\textless}= 1; dx++) //x is row
+
+\ \ \ \ \{
+
+\ \ \ \ \ \ CheckNeighborsParam param;
+
+\ \ \ \ \ \ param.root = \&root;
+
+\ \ \ \ \ \ param.resizedImg = resizedImg;
+
+\ \ \ \ \ \ param.dist = \&dist;
+
+\ \ \ \ \ \ param.res = res;
+
+\ \ \ \ \ \ param.open = \&open;
+
+\ \ \ \ \ \ param.cpos = cpos;
+
+\ \ \ \ \ \ param.dx = dx;
+
+\ \ \ \ \ \ param.lock = \&lock;
+
+\ \ \ \ \ \ threads.push\_back(std::thread(\&CVT::check\_neighbors, this, param));//end thread\ \ \ \ \ \ 
+
+\ \ \ \ \}//end for dx
+
+~
+
+\ \ \ \ \ \ \ \ for(auto\& thread : threads)
+
+\ \ \ \ \ \ \ \ \{
+
+\ \ \ \ \ \ \ \ \ \ thread.join();
+
+\ \ \ \ \ \ \ \ \}
+
+~
+
+\ \ \ \ std::push\_heap(open.begin(), open.end(), compareCell);
+
+\ \ \}//end while
+
+~
+\\\hline
+\end{supertabular}
+\end{flushleft}
+
+\bigskip
+
+\ \ I did get this to work, but there was no speed improvement. \ I had to eventually give up. \ I wanted to show I
+could improve the speed of Hedcut but I was only able to successfully improve the speed of my channel\_image
+implementation. \ \ In the end, I really improved my c++ abilities and learned a lot more about how to multi-thread
+programs in c++ which was something I had not ever done before. 
+\end{document}
